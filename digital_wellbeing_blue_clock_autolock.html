@@ -1,0 +1,872 @@
+
+<h2 class="sr-only">Digital Wellbeing Hub — blue themed with live clock timer in header, automatic lock system for overuse with cooldown countdowns, app timers, alarms, habit tracker, Pomodoro, mood log and self-check.</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--b50:#E6F1FB;--b100:#B5D4F4;--b200:#85B7EB;--b400:#378ADD;--b600:#185FA5;--b800:#0C447C;--b900:#042C53}
+body{font-family:var(--font-sans)}
+.dw{padding:1.2rem 0}
+
+.hbar{background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-lg);padding:11px 15px;margin-bottom:1rem;display:flex;align-items:center;gap:12px}
+@media(prefers-color-scheme:dark){.hbar{background:#042C53;border-color:#0C447C}}
+.hicon{width:34px;height:34px;border-radius:50%;background:#378ADD;display:flex;align-items:center;justify-content:center;color:#E6F1FB;font-size:16px;flex-shrink:0}
+.htitle{font-size:14px;font-weight:500;color:#0C447C}
+.hsub{font-size:11px;color:#185FA5;margin-top:2px}
+@media(prefers-color-scheme:dark){.htitle{color:#B5D4F4}.hsub{color:#85B7EB}}
+
+.clock-widget{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-left:auto}
+.clock-time{font-size:22px;font-weight:500;color:#0C447C;letter-spacing:.03em;font-family:var(--font-mono)}
+.clock-date{font-size:10px;color:#185FA5}
+@media(prefers-color-scheme:dark){.clock-time{color:#B5D4F4}.clock-date{color:#85B7EB}}
+.clock-ring-wrap{display:flex;align-items:center;gap:8px}
+.clock-ring{position:relative;width:44px;height:44px;flex-shrink:0}
+.clock-ring svg{transform:rotate(-90deg)}
+.clock-ring-time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#0C447C;font-family:var(--font-mono)}
+@media(prefers-color-scheme:dark){.clock-ring-time{color:#B5D4F4}}
+
+.ntabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.tb{display:flex;align-items:center;gap:4px;padding:6px 11px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:var(--color-background-primary);font-size:11px;color:#185FA5;cursor:pointer;transition:all .15s}
+.tb:hover{background:#E6F1FB}
+.tb.active{background:#378ADD;border-color:#378ADD;color:#E6F1FB;font-weight:500}
+@media(prefers-color-scheme:dark){.tb{border-color:#0C447C;color:#85B7EB}.tb:hover{background:#042C53}.tb.active{background:#185FA5;border-color:#185FA5;color:#E6F1FB}}
+.tb i{font-size:13px}
+.hidden{display:none}
+
+.sc{background:var(--color-background-primary);border:0.5px solid #B5D4F4;border-radius:var(--border-radius-lg);padding:13px 15px;margin-bottom:10px}
+@media(prefers-color-scheme:dark){.sc{border-color:#0C447C}}
+.sct{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sct i{font-size:15px;color:#378ADD}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin-bottom:10px}
+.stc{background:#E6F1FB;border-radius:var(--border-radius-md);padding:10px 12px}
+@media(prefers-color-scheme:dark){.stc{background:#042C53}}
+.stl{font-size:10px;color:#185FA5;margin-bottom:2px}
+@media(prefers-color-scheme:dark){.stl{color:#85B7EB}}
+.stv{font-size:19px;font-weight:500;color:#0C447C}
+@media(prefers-color-scheme:dark){.stv{color:#B5D4F4}}
+.sts{font-size:10px;color:#378ADD}
+@media(prefers-color-scheme:dark){.sts{color:#85B7EB}}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.col-card{background:var(--color-background-primary);border:0.5px solid #B5D4F4;border-radius:var(--border-radius-lg);overflow:hidden}
+@media(prefers-color-scheme:dark){.col-card{border-color:#0C447C}}
+.ch{padding:9px 13px;display:flex;align-items:center;gap:6px;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.ch{border-color:#0C447C}}
+.ch i{font-size:14px}.cht{font-size:11px;font-weight:500}
+.ph{background:#E6F1FB}.ph .cht,.ph i{color:#0C447C}
+.sh{background:#B5D4F4}.sh .cht,.sh i{color:#042C53}
+@media(prefers-color-scheme:dark){.ph{background:#042C53}.ph .cht,.ph i{color:#B5D4F4}.sh{background:#0C447C}.sh .cht,.sh i{color:#E6F1FB}}
+.cb{padding:9px 13px;display:flex;flex-direction:column;gap:7px}
+.ir{display:flex;gap:7px;align-items:flex-start}
+.in{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:1px}
+.pn{background:#E6F1FB;color:#0C447C}.sn{background:#B5D4F4;color:#042C53}
+@media(prefers-color-scheme:dark){.pn{background:#042C53;color:#B5D4F4}.sn{background:#0C447C;color:#E6F1FB}}
+.it{font-size:11px;color:var(--color-text-primary);line-height:1.4}
+.il{font-weight:500;display:block}.id{font-size:10px;color:var(--color-text-secondary);margin-top:1px;display:block}
+.tips-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.tp{display:inline-flex;align-items:center;gap:3px;background:#E6F1FB;color:#0C447C;border-radius:20px;padding:3px 9px;font-size:11px;border:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.tp{background:#042C53;color:#B5D4F4;border-color:#0C447C}}
+.tp i{font-size:12px}
+
+.app-timer-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.app-timer-row{border-color:#0C447C}}
+.app-timer-row:last-child{border-bottom:none}
+.app-dot{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:#E6F1FB;border:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.app-dot{background:#042C53;border-color:#0C447C}}
+.app-info{flex:1;min-width:0}
+.app-name{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.app-used{font-size:9px;color:var(--color-text-secondary);margin-top:1px}
+.app-bar-wrap{flex:1;min-width:55px}
+.app-bar{height:4px;background:#B5D4F4;border-radius:2px;overflow:hidden;margin-bottom:2px}
+@media(prefers-color-scheme:dark){.app-bar{background:#0C447C}}
+.app-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.app-pct{font-size:9px;color:#185FA5;text-align:right}
+@media(prefers-color-scheme:dark){.app-pct{color:#85B7EB}}
+.app-limit-input{width:50px;font-size:10px;padding:2px 5px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);text-align:center}
+@media(prefers-color-scheme:dark){.app-limit-input{border-color:#0C447C}}
+.app-toggle{position:relative;width:30px;height:16px;flex-shrink:0}
+.app-toggle input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:#B5D4F4;border-radius:8px;cursor:pointer;transition:.2s}
+@media(prefers-color-scheme:dark){.tog-sl{background:#0C447C}}
+.tog-sl:before{content:'';position:absolute;width:10px;height:10px;left:2px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.app-toggle input:checked + .tog-sl{background:#378ADD}
+.app-toggle input:checked + .tog-sl:before{transform:translateX(14px)}
+
+.alarm-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.alarm-row{border-color:#0C447C}}
+.alarm-row:last-child{border-bottom:none}
+.aicon{width:32px;height:32px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:#E6F1FB;border:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.aicon{background:#042C53;border-color:#0C447C}}
+.aicon i{color:#378ADD}
+.abody{flex:1;min-width:0}
+.atitle{font-size:11px;font-weight:500;color:var(--color-text-primary)}
+.adesc{font-size:10px;color:var(--color-text-secondary);margin-top:2px;line-height:1.4}
+.actrl{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:500}
+.badge-r{background:#FCEBEB;color:#791F1F}
+.badge-y{background:#FAEEDA;color:#633806}
+.badge-g{background:#EAF3DE;color:#27500A}
+@media(prefers-color-scheme:dark){.badge-r{background:#501313;color:#F7C1C1}.badge-y{background:#412402;color:#FAC775}.badge-g{background:#173404;color:#C0DD97}}
+.ath{width:50px;font-size:10px;padding:2px 5px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);text-align:center}
+@media(prefers-color-scheme:dark){.ath{border-color:#0C447C}}
+.ast{font-size:10px;font-weight:500}
+.ast-on{color:#3B6D11}.ast-off{color:#A32D2D}
+@media(prefers-color-scheme:dark){.ast-on{color:#C0DD97}.ast-off{color:#F7C1C1}}
+
+.alert-banner{border-radius:var(--border-radius-md);padding:9px 12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:9px}
+.alert-banner i{font-size:15px;flex-shrink:0;margin-top:1px}
+.ab-title{font-size:11px;font-weight:500}
+.ab-sub{font-size:10px;margin-top:2px;line-height:1.4}
+.alert-r{background:#FCEBEB;border:0.5px solid #F7C1C1;border-left:3px solid #E24B4A}
+.alert-r i,.alert-r .ab-title{color:#791F1F}.alert-r .ab-sub{color:#A32D2D}
+.alert-y{background:#FAEEDA;border:0.5px solid #FAC775;border-left:3px solid #BA7517}
+.alert-y i,.alert-y .ab-title{color:#633806}.alert-y .ab-sub{color:#854F0B}
+.alert-g{background:#EAF3DE;border:0.5px solid #C0DD97;border-left:3px solid #639922}
+.alert-g i,.alert-g .ab-title{color:#27500A}.alert-g .ab-sub{color:#3B6D11}
+@media(prefers-color-scheme:dark){
+  .alert-r{background:#501313;border-color:#791F1F}.alert-r i,.alert-r .ab-title{color:#F7C1C1}.alert-r .ab-sub{color:#F09595}
+  .alert-y{background:#412402;border-color:#633806}.alert-y i,.alert-y .ab-title{color:#FAC775}.alert-y .ab-sub{color:#EF9F27}
+  .alert-g{background:#173404;border-color:#27500A}.alert-g i,.alert-g .ab-title{color:#C0DD97}.alert-g .ab-sub{color:#97C459}
+}
+
+.sim-btn{padding:6px 12px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:transparent;color:#185FA5;font-size:11px;cursor:pointer;transition:all .15s}
+.sim-btn:hover{background:#E6F1FB;border-color:#378ADD}
+@media(prefers-color-scheme:dark){.sim-btn{color:#85B7EB;border-color:#0C447C}.sim-btn:hover{background:#042C53}}
+
+.lock-app-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.lock-app-row{border-color:#0C447C}}
+.lock-app-row:last-child{border-bottom:none}
+.lock-icon{width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lock-info{flex:1;min-width:0}
+.lock-name{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.lock-status{font-size:10px;margin-top:2px}
+.lock-cd{font-size:12px;font-weight:500;font-family:var(--font-mono);color:#0C447C;min-width:52px;text-align:right;flex-shrink:0}
+@media(prefers-color-scheme:dark){.lock-cd{color:#B5D4F4}}
+.lock-bar-wrap{flex:1;min-width:60px;max-width:100px}
+.lock-bar{height:5px;background:#B5D4F4;border-radius:3px;overflow:hidden;margin-bottom:2px}
+@media(prefers-color-scheme:dark){.lock-bar{background:#0C447C}}
+.lock-bar-fill{height:100%;border-radius:3px;transition:width 1s linear}
+.lock-pct{font-size:9px;color:#185FA5;text-align:right}
+@media(prefers-color-scheme:dark){.lock-pct{color:#85B7EB}}
+.lock-toggle{position:relative;width:30px;height:16px;flex-shrink:0}
+.lock-toggle input{opacity:0;width:0;height:0}
+.lt-sl{position:absolute;inset:0;background:#B5D4F4;border-radius:8px;cursor:pointer;transition:.2s}
+@media(prefers-color-scheme:dark){.lt-sl{background:#0C447C}}
+.lt-sl:before{content:'';position:absolute;width:10px;height:10px;left:2px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.lock-toggle input:checked + .lt-sl{background:#378ADD}
+.lock-toggle input:checked + .lt-sl:before{transform:translateX(14px)}
+.lock-chip{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:500;flex-shrink:0}
+.chip-locked{background:#FCEBEB;color:#791F1F}
+.chip-active{background:#EAF3DE;color:#27500A}
+.chip-warn{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){.chip-locked{background:#501313;color:#F7C1C1}.chip-active{background:#173404;color:#C0DD97}.chip-warn{background:#412402;color:#FAC775}}
+.lock-override-btn{font-size:10px;padding:3px 10px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:transparent;color:#185FA5;cursor:pointer;flex-shrink:0}
+.lock-override-btn:hover{background:#E6F1FB;border-color:#378ADD}
+@media(prefers-color-scheme:dark){.lock-override-btn{color:#85B7EB;border-color:#0C447C}.lock-override-btn:hover{background:#042C53}}
+.lock-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.lock-stat{background:#E6F1FB;border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+@media(prefers-color-scheme:dark){.lock-stat{background:#042C53}}
+.ls-num{font-size:22px;font-weight:500;color:#0C447C}
+@media(prefers-color-scheme:dark){.ls-num{color:#B5D4F4}}
+.ls-lbl{font-size:10px;color:#185FA5;margin-top:2px}
+@media(prefers-color-scheme:dark){.ls-lbl{color:#85B7EB}}
+.lock-settings-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.lock-settings-row{border-color:#0C447C}}
+.lock-settings-row:last-child{border-bottom:none}
+.ls-label{font-size:11px;color:var(--color-text-primary);flex:1}
+.ls-sub{font-size:10px;color:var(--color-text-secondary);display:block;margin-top:1px}
+.ls-input{width:56px;font-size:11px;padding:3px 6px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);text-align:center}
+@media(prefers-color-scheme:dark){.ls-input{border-color:#0C447C}}
+
+.habit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.habit-item{display:flex;align-items:center;gap:6px;padding:7px 9px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);cursor:pointer;transition:all .15s;background:var(--color-background-primary)}
+.habit-item:hover{background:#E6F1FB}
+@media(prefers-color-scheme:dark){.habit-item{border-color:#0C447C}.habit-item:hover{background:#042C53}}
+.habit-item.done{background:#E6F1FB;border-color:#378ADD}
+@media(prefers-color-scheme:dark){.habit-item.done{background:#042C53;border-color:#378ADD}}
+.hck{width:16px;height:16px;border-radius:50%;border:1.5px solid #85B7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:transparent;transition:all .15s}
+.habit-item.done .hck{background:#378ADD;border-color:#378ADD;color:#E6F1FB}
+.hlbl{font-size:11px;color:var(--color-text-primary)}
+.sbar-wrap{margin-top:7px}
+.sbar-lbl{font-size:11px;color:#185FA5;margin-bottom:4px;display:flex;justify-content:space-between}
+@media(prefers-color-scheme:dark){.sbar-lbl{color:#85B7EB}}
+.sbar{height:5px;background:#B5D4F4;border-radius:3px;overflow:hidden}
+@media(prefers-color-scheme:dark){.sbar{background:#0C447C}}
+.sbar-fill{height:100%;background:#378ADD;border-radius:3px;transition:width .4s}
+
+.pomo-ring{position:relative;width:110px;height:110px;margin:0 auto 10px}
+.pomo-ring svg{transform:rotate(-90deg)}
+.pomo-tl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:500;color:#0C447C;font-family:var(--font-mono)}
+@media(prefers-color-scheme:dark){.pomo-tl{color:#B5D4F4}}
+.pomo-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pomo-lbl{font-size:11px;color:#185FA5;text-align:center}
+@media(prefers-color-scheme:dark){.pomo-lbl{color:#85B7EB}}
+.pomo-btns{display:flex;gap:7px}
+.pb{padding:6px 13px;border:0.5px solid #378ADD;border-radius:var(--border-radius-md);background:transparent;color:#185FA5;font-size:11px;cursor:pointer}
+.pb:hover{background:#E6F1FB}
+.pb.pri{background:#378ADD;border-color:#378ADD;color:#E6F1FB}
+.pb.pri:hover{background:#185FA5}
+@media(prefers-color-scheme:dark){.pb{color:#85B7EB;border-color:#0C447C}.pb:hover{background:#042C53}.pb.pri{background:#185FA5;color:#E6F1FB}}
+.pomo-modes{display:flex;gap:4px;margin-bottom:10px}
+.pm{padding:4px 9px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);font-size:10px;cursor:pointer;color:#185FA5;background:transparent}
+.pm.active{background:#378ADD;border-color:#378ADD;color:#E6F1FB}
+@media(prefers-color-scheme:dark){.pm{border-color:#0C447C;color:#85B7EB}.pm.active{background:#185FA5;color:#E6F1FB}}
+.brt-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.brt-lbl{font-size:11px;color:#185FA5;min-width:95px}
+@media(prefers-color-scheme:dark){.brt-lbl{color:#85B7EB}}
+.brt-val{font-size:11px;font-weight:500;color:#0C447C;min-width:28px;text-align:right}
+@media(prefers-color-scheme:dark){.brt-val{color:#B5D4F4}}
+
+.mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.mood-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);cursor:pointer;background:transparent}
+.mood-btn:hover{background:#E6F1FB}
+.mood-btn.sel{background:#E6F1FB;border-color:#378ADD;border-width:1.5px}
+@media(prefers-color-scheme:dark){.mood-btn{border-color:#0C447C}.mood-btn:hover{background:#042C53}.mood-btn.sel{background:#042C53;border-color:#378ADD}}
+.mood-ic{font-size:17px;color:#378ADD}
+.mood-lt{font-size:9px;color:var(--color-text-secondary);text-align:center}
+.mood-note-row{display:flex;gap:6px;margin-bottom:8px}
+.mood-note-row input{flex:1;font-size:11px;padding:5px 8px;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+@media(prefers-color-scheme:dark){.mood-note-row input{border-color:#0C447C}}
+.mood-note-row button{padding:5px 11px;background:#378ADD;border:none;border-radius:var(--border-radius-md);color:#E6F1FB;font-size:11px;cursor:pointer}
+.mood-log{display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto}
+.mood-entry{display:flex;align-items:center;gap:7px;padding:5px 8px;background:#E6F1FB;border-radius:var(--border-radius-md);font-size:11px}
+@media(prefers-color-scheme:dark){.mood-entry{background:#042C53}}
+.mood-ei{font-size:14px;color:#378ADD}
+.mood-et{font-size:10px;color:#185FA5;margin-left:auto}
+@media(prefers-color-scheme:dark){.mood-et{color:#85B7EB}}
+
+.ck-row{display:flex;align-items:flex-start;gap:7px;padding:6px 0;border-bottom:0.5px solid #B5D4F4}
+@media(prefers-color-scheme:dark){.ck-row{border-color:#0C447C}}
+.ck-row:last-of-type{border-bottom:none}
+.ck-lbl{font-size:11px;color:var(--color-text-primary);line-height:1.4}
+.ck-sub{font-size:10px;color:var(--color-text-secondary)}
+.send-btn{font-size:11px;padding:7px 13px;border:0.5px solid #378ADD;border-radius:var(--border-radius-md);background:transparent;color:#185FA5;cursor:pointer;margin-top:8px}
+.send-btn:hover{background:#E6F1FB}
+@media(prefers-color-scheme:dark){.send-btn{color:#85B7EB;border-color:#0C447C}.send-btn:hover{background:#042C53}}
+</style>
+
+<div class="dw">
+  <div class="hbar">
+    <div class="hicon"><i class="ti ti-heart-rate-monitor" aria-hidden="true"></i></div>
+    <div>
+      <div class="htitle">Digital Wellbeing Hub</div>
+      <div class="hsub">App timers · usage alarms · auto-lock · habit tracking</div>
+    </div>
+    <div class="clock-widget">
+      <div class="clock-ring-wrap">
+        <div class="clock-ring">
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#B5D4F4" stroke-width="3"/>
+            <circle id="secRing" cx="22" cy="22" r="18" fill="none" stroke="#378ADD" stroke-width="3" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="113.1"/>
+          </svg>
+          <div class="clock-ring-time" id="secNum">00</div>
+        </div>
+        <div>
+          <div class="clock-time" id="liveClock">--:--</div>
+          <div class="clock-date" id="liveDate">---</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ntabs" id="navTabs">
+    <button class="tb active" data-tab="autolock"><i class="ti ti-lock" aria-hidden="true"></i> Auto-lock</button>
+    <button class="tb" data-tab="alarms"><i class="ti ti-bell-ringing" aria-hidden="true"></i> Alarms</button>
+    <button class="tb" data-tab="timers"><i class="ti ti-hourglass" aria-hidden="true"></i> App timers</button>
+    <button class="tb" data-tab="screen"><i class="ti ti-device-mobile" aria-hidden="true"></i> Screen</button>
+    <button class="tb" data-tab="sleep"><i class="ti ti-moon" aria-hidden="true"></i> Sleep</button>
+    <button class="tb" data-tab="social"><i class="ti ti-social" aria-hidden="true"></i> Social</button>
+    <button class="tb" data-tab="focus"><i class="ti ti-brain" aria-hidden="true"></i> Focus</button>
+    <button class="tb" data-tab="mental"><i class="ti ti-heart" aria-hidden="true"></i> Mental</button>
+    <button class="tb" data-tab="habits"><i class="ti ti-checklist" aria-hidden="true"></i> Habits</button>
+    <button class="tb" data-tab="pomo"><i class="ti ti-clock" aria-hidden="true"></i> Timer</button>
+    <button class="tb" data-tab="mood"><i class="ti ti-mood-smile" aria-hidden="true"></i> Mood</button>
+    <button class="tb" data-tab="checker"><i class="ti ti-clipboard-check" aria-hidden="true"></i> Self-check</button>
+  </div>
+
+  <!-- ===== AUTO-LOCK TAB ===== -->
+  <div id="tab-autolock">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-chart-bar" aria-hidden="true"></i> Lock system overview</div>
+      <div class="lock-overview">
+        <div class="lock-stat"><div class="ls-num" id="lockedCount">1</div><div class="ls-lbl">Apps locked now</div></div>
+        <div class="lock-stat"><div class="ls-num" id="warnCount">2</div><div class="ls-lbl">Approaching limit</div></div>
+        <div class="lock-stat"><div class="ls-num" id="safeCount">5</div><div class="ls-lbl">Within safe use</div></div>
+        <div class="lock-stat"><div class="ls-num" id="totalSaved" style="color:#378ADD">43 min</div><div class="ls-lbl">Saved today</div></div>
+      </div>
+    </div>
+
+    <div class="sc">
+      <div class="sct"><i class="ti ti-lock" aria-hidden="true"></i> Per-app auto-lock status</div>
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">When usage hits the limit, the app locks automatically. A cooldown countdown runs before it unlocks. You can request an override anytime.</p>
+
+      <div id="lockAppList">
+        <div class="lock-app-row" data-app="Instagram" data-used="87" data-limit="60" data-locked="true" data-cd="900">
+          <div class="lock-icon" style="background:#FCEBEB;border:0.5px solid #F7C1C1"><i class="ti ti-brand-instagram" style="color:#791F1F" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">Instagram</div>
+            <div class="lock-status chip-locked" style="font-size:10px;color:#791F1F">Locked — cooldown active</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:100%;background:#E24B4A"></div></div>
+            <div class="lock-pct" style="color:#A32D2D">87 / 60 min</div>
+          </div>
+          <div class="lock-cd" id="cd-Instagram">15:00</div>
+          <span class="lock-chip chip-locked"><i class="ti ti-lock" style="font-size:9px" aria-hidden="true"></i> Locked</span>
+          <button class="lock-override-btn" onclick="requestOverride('Instagram')">Override</button>
+        </div>
+
+        <div class="lock-app-row" data-app="WhatsApp" data-used="45" data-limit="60" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#EAF3DE;border:0.5px solid #C0DD97"><i class="ti ti-brand-whatsapp" style="color:#27500A" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">WhatsApp</div>
+            <div class="lock-status" style="font-size:10px;color:#854F0B">Warning — 15 min left</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:75%;background:#BA7517"></div></div>
+            <div class="lock-pct">45 / 60 min</div>
+          </div>
+          <div class="lock-cd" id="cd-WhatsApp" style="color:#BA7517">15 left</div>
+          <span class="lock-chip chip-warn">Warning</span>
+          <label class="lock-toggle" aria-label="Toggle WhatsApp auto-lock"><input type="checkbox" checked onchange="toggleLock(this,'WhatsApp')"><span class="lt-sl"></span></label>
+        </div>
+
+        <div class="lock-app-row" data-app="Twitter" data-used="52" data-limit="60" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#FAEEDA;border:0.5px solid #FAC775"><i class="ti ti-brand-x" style="color:#633806" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">Twitter / X</div>
+            <div class="lock-status" style="font-size:10px;color:#854F0B">Warning — 8 min left</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:87%;background:#BA7517"></div></div>
+            <div class="lock-pct">52 / 60 min</div>
+          </div>
+          <div class="lock-cd" id="cd-Twitter" style="color:#BA7517">8 left</div>
+          <span class="lock-chip chip-warn">Warning</span>
+          <label class="lock-toggle" aria-label="Toggle Twitter auto-lock"><input type="checkbox" checked onchange="toggleLock(this,'Twitter')"><span class="lt-sl"></span></label>
+        </div>
+
+        <div class="lock-app-row" data-app="YouTube" data-used="30" data-limit="90" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#E6F1FB;border:0.5px solid #B5D4F4"><i class="ti ti-brand-youtube" style="color:#0C447C" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">YouTube</div>
+            <div class="lock-status" style="font-size:10px;color:#3B6D11">Active — within limit</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:33%;background:#378ADD"></div></div>
+            <div class="lock-pct">30 / 90 min</div>
+          </div>
+          <div class="lock-cd" id="cd-YouTube" style="color:#3B6D11">60 left</div>
+          <span class="lock-chip chip-active">Active</span>
+          <label class="lock-toggle" aria-label="Toggle YouTube auto-lock"><input type="checkbox" checked onchange="toggleLock(this,'YouTube')"><span class="lt-sl"></span></label>
+        </div>
+
+        <div class="lock-app-row" data-app="TikTok" data-used="18" data-limit="50" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#E6F1FB;border:0.5px solid #B5D4F4"><i class="ti ti-brand-tiktok" style="color:#0C447C" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">TikTok</div>
+            <div class="lock-status" style="font-size:10px;color:#3B6D11">Active — within limit</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:36%;background:#378ADD"></div></div>
+            <div class="lock-pct">18 / 50 min</div>
+          </div>
+          <div class="lock-cd" id="cd-TikTok" style="color:#3B6D11">32 left</div>
+          <span class="lock-chip chip-active">Active</span>
+          <label class="lock-toggle" aria-label="Toggle TikTok auto-lock"><input type="checkbox" checked onchange="toggleLock(this,'TikTok')"><span class="lt-sl"></span></label>
+        </div>
+
+        <div class="lock-app-row" data-app="Reddit" data-used="35" data-limit="50" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#E6F1FB;border:0.5px solid #B5D4F4"><i class="ti ti-brand-reddit" style="color:#0C447C" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">Reddit</div>
+            <div class="lock-status" style="font-size:10px;color:#3B6D11">Active — within limit</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:70%;background:#378ADD"></div></div>
+            <div class="lock-pct">35 / 50 min</div>
+          </div>
+          <div class="lock-cd" id="cd-Reddit" style="color:#3B6D11">15 left</div>
+          <span class="lock-chip chip-active">Active</span>
+          <label class="lock-toggle" aria-label="Toggle Reddit auto-lock"><input type="checkbox" onchange="toggleLock(this,'Reddit')"><span class="lt-sl"></span></label>
+        </div>
+
+        <div class="lock-app-row" data-app="Facebook" data-used="10" data-limit="50" data-locked="false" data-cd="0">
+          <div class="lock-icon" style="background:#E6F1FB;border:0.5px solid #B5D4F4"><i class="ti ti-brand-facebook" style="color:#0C447C" aria-hidden="true"></i></div>
+          <div class="lock-info">
+            <div class="lock-name">Facebook</div>
+            <div class="lock-status" style="font-size:10px;color:#3B6D11">Active — within limit</div>
+          </div>
+          <div class="lock-bar-wrap">
+            <div class="lock-bar"><div class="lock-bar-fill" style="width:20%;background:#378ADD"></div></div>
+            <div class="lock-pct">10 / 50 min</div>
+          </div>
+          <div class="lock-cd" id="cd-Facebook" style="color:#3B6D11">40 left</div>
+          <span class="lock-chip chip-active">Active</span>
+          <label class="lock-toggle" aria-label="Toggle Facebook auto-lock"><input type="checkbox" onchange="toggleLock(this,'Facebook')"><span class="lt-sl"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc">
+      <div class="sct"><i class="ti ti-settings" aria-hidden="true"></i> Auto-lock settings</div>
+      <div class="lock-settings-row">
+        <div>
+          <div class="ls-label">Cooldown duration after lock</div>
+          <span class="ls-sub">How long the app stays locked before it can be reopened</span>
+        </div>
+        <input class="ls-input" type="number" value="15" min="5" max="120" step="5" id="cdDuration"> <span style="font-size:10px;color:var(--color-text-secondary)">min</span>
+      </div>
+      <div class="lock-settings-row">
+        <div>
+          <div class="ls-label">Override delay (friction)</div>
+          <span class="ls-sub">Wait time before an override request is granted</span>
+        </div>
+        <input class="ls-input" type="number" value="60" min="10" max="300" step="10" id="overrideDelay"> <span style="font-size:10px;color:var(--color-text-secondary)">sec</span>
+      </div>
+      <div class="lock-settings-row">
+        <div>
+          <div class="ls-label">Daily override limit</div>
+          <span class="ls-sub">Maximum number of overrides allowed per day before hard-lock</span>
+        </div>
+        <input class="ls-input" type="number" value="2" min="0" max="10" step="1" id="overrideLimit"> <span style="font-size:10px;color:var(--color-text-secondary)">overrides</span>
+      </div>
+      <div class="lock-settings-row">
+        <div>
+          <div class="ls-label">Hard-lock window</div>
+          <span class="ls-sub">Time of day when all locked apps are permanently blocked (no override)</span>
+        </div>
+        <input class="ls-input" type="time" value="22:00" id="hardLockTime" style="width:80px">
+      </div>
+    </div>
+
+    <div id="overridePanel" class="hidden" style="margin-bottom:10px">
+      <div class="alert-banner alert-y" id="overrideBanner">
+        <i class="ti ti-clock-exclamation" aria-hidden="true"></i>
+        <div style="flex:1">
+          <div class="ab-title" id="overrideTitle">Override requested — please wait</div>
+          <div class="ab-sub" id="overrideSub">This friction delay encourages you to reflect before re-opening the app.</div>
+          <div style="margin-top:8px">
+            <div class="sbar-lbl" style="font-size:10px"><span>Delay countdown</span><span id="overrideCountdown">60s</span></div>
+            <div class="sbar"><div class="sbar-fill" id="overrideFill" style="width:100%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="send-btn" onclick="sendPrompt('Explain how automatic app locking and friction delays help reduce excessive social media use based on psychology research')">How does auto-lock help? ↗</button>
+  </div>
+
+  <!-- ALARMS TAB -->
+  <div id="tab-alarms" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-bell-ringing" aria-hidden="true"></i> Live usage alerts</div>
+      <div id="alertBanners">
+        <div class="alert-banner alert-r"><i class="ti ti-alert-triangle" aria-hidden="true"></i><div><div class="ab-title">Instagram — limit exceeded</div><div class="ab-sub">87 min used · 60 min limit · App locked automatically</div></div></div>
+        <div class="alert-banner alert-y"><i class="ti ti-clock-exclamation" aria-hidden="true"></i><div><div class="ab-title">WhatsApp — approaching limit</div><div class="ab-sub">45 min used of 60 min daily limit · 15 minutes remaining</div></div></div>
+        <div class="alert-banner alert-g"><i class="ti ti-circle-check" aria-hidden="true"></i><div><div class="ab-title">YouTube — within limit</div><div class="ab-sub">30 min used of 90 min limit · Operating normally</div></div></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+        <button class="sim-btn" id="simBtn">Simulate alert</button>
+        <button class="sim-btn" id="clearBtn">Clear all</button>
+      </div>
+    </div>
+    <div class="sc">
+      <div class="sct"><i class="ti ti-settings" aria-hidden="true"></i> Alarm rules</div>
+      <div class="alarm-row">
+        <div class="aicon"><i class="ti ti-device-mobile-vibration" aria-hidden="true"></i></div>
+        <div class="abody"><div class="atitle">Total daily screen time</div><div class="adesc">Alert when combined device usage exceeds threshold</div>
+        <div class="actrl"><span class="badge badge-r">High</span><input class="ath" type="number" value="240" min="30" max="600" step="15"> <span style="font-size:10px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle alarm"><input type="checkbox" checked><span class="tog-sl"></span></label><span class="ast ast-on">Active</span></div></div>
+      </div>
+      <div class="alarm-row">
+        <div class="aicon"><i class="ti ti-social" aria-hidden="true"></i></div>
+        <div class="abody"><div class="atitle">Social media combined</div><div class="adesc">WhatsApp + Instagram + TikTok + Twitter aggregate</div>
+        <div class="actrl"><span class="badge badge-y">Medium</span><input class="ath" type="number" value="90" min="15" max="300" step="15"> <span style="font-size:10px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle alarm"><input type="checkbox" checked><span class="tog-sl"></span></label><span class="ast ast-on">Active</span></div></div>
+      </div>
+      <div class="alarm-row">
+        <div class="aicon"><i class="ti ti-moon-2" aria-hidden="true"></i></div>
+        <div class="abody"><div class="atitle">Late-night usage</div><div class="adesc">Alerts when any app is used after bedtime cutoff</div>
+        <div class="actrl"><span class="badge badge-y">Sleep</span><input class="ath" type="number" value="22" min="20" max="23" step="1"> <span style="font-size:10px;color:var(--color-text-secondary)">hr</span><label class="app-toggle" aria-label="Toggle alarm"><input type="checkbox" checked><span class="tog-sl"></span></label><span class="ast ast-on">Active</span></div></div>
+      </div>
+      <div class="alarm-row">
+        <div class="aicon"><i class="ti ti-refresh" aria-hidden="true"></i></div>
+        <div class="abody"><div class="atitle">Single session length</div><div class="adesc">Fires when a single unbroken session exceeds limit</div>
+        <div class="actrl"><span class="badge badge-g">Focus</span><input class="ath" type="number" value="30" min="10" max="120" step="5"> <span style="font-size:10px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle alarm"><input type="checkbox"><span class="tog-sl"></span></label><span class="ast ast-off">Off</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP TIMERS TAB -->
+  <div id="tab-timers" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-hourglass" aria-hidden="true"></i> Per-app daily limits</div>
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:9px">Set daily time allocations for each app. Auto-lock triggers when the limit is reached.</p>
+      <div class="app-timer-row"><div class="app-dot"><i class="ti ti-brand-whatsapp" style="color:#0C447C;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name">WhatsApp</div><div class="app-used">45 min used</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:75%;background:#BA7517"></div></div><div class="app-pct">75%</div></div><input class="app-limit-input" type="number" value="60" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle WhatsApp"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      <div class="app-timer-row"><div class="app-dot" style="background:#FCEBEB;border-color:#F7C1C1"><i class="ti ti-brand-instagram" style="color:#791F1F;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name" style="color:#A32D2D">Instagram</div><div class="app-used">87 min · LOCKED</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:100%;background:#E24B4A"></div></div><div class="app-pct" style="color:#A32D2D">Exceeded</div></div><input class="app-limit-input" type="number" value="60" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle Instagram"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      <div class="app-timer-row"><div class="app-dot"><i class="ti ti-brand-youtube" style="color:#0C447C;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name">YouTube</div><div class="app-used">30 min used</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:33%;background:#378ADD"></div></div><div class="app-pct">33%</div></div><input class="app-limit-input" type="number" value="90" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle YouTube"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      <div class="app-timer-row"><div class="app-dot"><i class="ti ti-brand-x" style="color:#0C447C;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name">Twitter / X</div><div class="app-used">52 min used</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:87%;background:#BA7517"></div></div><div class="app-pct" style="color:#BA7517">87%</div></div><input class="app-limit-input" type="number" value="60" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle Twitter"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      <div class="app-timer-row"><div class="app-dot"><i class="ti ti-brand-tiktok" style="color:#0C447C;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name">TikTok</div><div class="app-used">18 min used</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:36%;background:#378ADD"></div></div><div class="app-pct">36%</div></div><input class="app-limit-input" type="number" value="50" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle TikTok"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+      <div class="app-timer-row"><div class="app-dot"><i class="ti ti-brand-reddit" style="color:#0C447C;font-size:14px" aria-hidden="true"></i></div><div class="app-info"><div class="app-name">Reddit</div><div class="app-used">35 min used</div></div><div class="app-bar-wrap"><div class="app-bar"><div class="app-bar-fill" style="width:70%;background:#378ADD"></div></div><div class="app-pct">70%</div></div><input class="app-limit-input" type="number" value="50" min="5" max="480" step="5"><span style="font-size:9px;color:var(--color-text-secondary)">min</span><label class="app-toggle" aria-label="Toggle Reddit"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+    </div>
+  </div>
+
+  <!-- SCREEN TAB -->
+  <div id="tab-screen" class="hidden">
+    <div class="stats-row"><div class="stc"><div class="stl">Avg screen/day</div><div class="stv">6.5h</div><div class="sts">global avg 2024</div></div><div class="stc"><div class="stl">Unlocks/day</div><div class="stv">96×</div><div class="sts">avg adult</div></div><div class="stc"><div class="stl">Safe limit</div><div class="stv">2h</div><div class="sts">recreational</div></div><div class="stc"><div class="stl">Focus recovery</div><div class="stv">23m</div><div class="sts">per interruption</div></div></div>
+    <div class="two-col">
+      <div class="col-card"><div class="ch ph"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="cht">Common problems</span></div><div class="cb">
+        <div class="ir"><div class="in pn">1</div><div class="it"><span class="il">Excessive scrolling</span><span class="id">Mindless browsing for hours without intention</span></div></div>
+        <div class="ir"><div class="in pn">2</div><div class="it"><span class="il">Phantom vibration</span><span class="id">Constant checking anxiety loop</span></div></div>
+        <div class="ir"><div class="in pn">3</div><div class="it"><span class="il">Multitasking overload</span><span class="id">App-switching destroys deep work capacity</span></div></div>
+        <div class="ir"><div class="in pn">4</div><div class="it"><span class="il">Eye strain</span><span class="id">Digital fatigue from prolonged close-up use</span></div></div>
+        <div class="ir"><div class="in pn">5</div><div class="it"><span class="il">Sedentary behaviour</span><span class="id">Hours stationary consuming content</span></div></div>
+      </div></div>
+      <div class="col-card"><div class="ch sh"><i class="ti ti-bulb" aria-hidden="true"></i><span class="cht">Evidence-based solutions</span></div><div class="cb">
+        <div class="ir"><div class="in sn">1</div><div class="it"><span class="il">App timers + auto-lock</span><span class="id">Hard limits that enforce themselves automatically</span></div></div>
+        <div class="ir"><div class="in sn">2</div><div class="it"><span class="il">Greyscale mode</span><span class="id">Colour removal reduces compulsive checking</span></div></div>
+        <div class="ir"><div class="in sn">3</div><div class="it"><span class="il">One-tab policy</span><span class="id">Limit browser tabs to reduce cognitive load</span></div></div>
+        <div class="ir"><div class="in sn">4</div><div class="it"><span class="il">20-20-20 rule</span><span class="id">Every 20 min, look 20 ft away for 20 seconds</span></div></div>
+        <div class="ir"><div class="in sn">5</div><div class="it"><span class="il">Movement alarms</span><span class="id">Stand-up reminder every 45 min</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- SLEEP TAB -->
+  <div id="tab-sleep" class="hidden">
+    <div class="stats-row"><div class="stc"><div class="stl">Blue light delay</div><div class="stv">+1h</div><div class="sts">melatonin block</div></div><div class="stc"><div class="stl">Night device use</div><div class="stv">35%</div><div class="sts">adults affected</div></div><div class="stc"><div class="stl">Screen cutoff</div><div class="stv">-90m</div><div class="sts">before sleep</div></div><div class="stc"><div class="stl">Required sleep</div><div class="stv">7–9h</div><div class="sts">WHO adults</div></div></div>
+    <div class="two-col">
+      <div class="col-card"><div class="ch ph"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="cht">Common problems</span></div><div class="cb">
+        <div class="ir"><div class="in pn">1</div><div class="it"><span class="il">Bedtime scrolling</span><span class="id">Delays sleep onset by 30–90 min</span></div></div>
+        <div class="ir"><div class="in pn">2</div><div class="it"><span class="il">Blue light exposure</span><span class="id">Suppresses melatonin, disrupts circadian rhythm</span></div></div>
+        <div class="ir"><div class="in pn">3</div><div class="it"><span class="il">Notification waking</span><span class="id">Pings at night fragment deep sleep stages</span></div></div>
+        <div class="ir"><div class="in pn">4</div><div class="it"><span class="il">Late-night news</span><span class="id">Stressful content spikes cortisol at bedtime</span></div></div>
+        <div class="ir"><div class="in pn">5</div><div class="it"><span class="il">Social jetlag</span><span class="id">Weekend binges shift your sleep rhythm</span></div></div>
+      </div></div>
+      <div class="col-card"><div class="ch sh"><i class="ti ti-bulb" aria-hidden="true"></i><span class="cht">Evidence-based solutions</span></div><div class="cb">
+        <div class="ir"><div class="in sn">1</div><div class="it"><span class="il">Digital sunset</span><span class="id">All screens off 90 min before bed</span></div></div>
+        <div class="ir"><div class="in sn">2</div><div class="it"><span class="il">Night mode</span><span class="id">Enable amber display filter after 7 pm</span></div></div>
+        <div class="ir"><div class="in sn">3</div><div class="it"><span class="il">DND scheduling</span><span class="id">Auto-enable Do Not Disturb from 10 pm</span></div></div>
+        <div class="ir"><div class="in sn">4</div><div class="it"><span class="il">Charge outside bedroom</span><span class="id">Physical distance removes the temptation</span></div></div>
+        <div class="ir"><div class="in sn">5</div><div class="it"><span class="il">Consistent wake time</span><span class="id">Same alarm 7 days anchors your rhythm</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- SOCIAL TAB -->
+  <div id="tab-social" class="hidden">
+    <div class="stats-row"><div class="stc"><div class="stl">Daily social use</div><div class="stv">2.5h</div><div class="sts">global avg</div></div><div class="stc"><div class="stl">Teens harmed</div><div class="stv">59%</div><div class="sts">self-reported</div></div><div class="stc"><div class="stl">FOMO rate</div><div class="stv">69%</div><div class="sts">millennials</div></div><div class="stc"><div class="stl">Ideal cap</div><div class="stv">30m</div><div class="sts">wellbeing link</div></div></div>
+    <div class="two-col">
+      <div class="col-card"><div class="ch ph"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="cht">Common problems</span></div><div class="cb">
+        <div class="ir"><div class="in pn">1</div><div class="it"><span class="il">Social comparison</span><span class="id">Curated feeds build unrealistic benchmarks</span></div></div>
+        <div class="ir"><div class="in pn">2</div><div class="it"><span class="il">Doom scrolling</span><span class="id">Compulsive negative content consumption</span></div></div>
+        <div class="ir"><div class="in pn">3</div><div class="it"><span class="il">Validation addiction</span><span class="id">Likes replace intrinsic self-worth</span></div></div>
+        <div class="ir"><div class="in pn">4</div><div class="it"><span class="il">Cyberbullying</span><span class="id">Online hostility with lasting psychological damage</span></div></div>
+        <div class="ir"><div class="in pn">5</div><div class="it"><span class="il">Echo chambers</span><span class="id">Algorithms lock beliefs and limit perspective</span></div></div>
+      </div></div>
+      <div class="col-card"><div class="ch sh"><i class="ti ti-bulb" aria-hidden="true"></i><span class="cht">Evidence-based solutions</span></div><div class="cb">
+        <div class="ir"><div class="in sn">1</div><div class="it"><span class="il">Curate your feed</span><span class="id">Unfollow comparison triggers</span></div></div>
+        <div class="ir"><div class="in sn">2</div><div class="it"><span class="il">News scheduling</span><span class="id">Fixed news check windows, twice daily max</span></div></div>
+        <div class="ir"><div class="in sn">3</div><div class="it"><span class="il">Intentional posting</span><span class="id">Decouple self-worth from engagement metrics</span></div></div>
+        <div class="ir"><div class="in sn">4</div><div class="it"><span class="il">Block/mute freely</span><span class="id">Use platform tools assertively</span></div></div>
+        <div class="ir"><div class="in sn">5</div><div class="it"><span class="il">Diversify sources</span><span class="id">Actively seek views outside your bubble</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- FOCUS TAB -->
+  <div id="tab-focus" class="hidden">
+    <div class="stats-row"><div class="stc"><div class="stl">Attention span</div><div class="stv">47s</div><div class="sts">mind wanders</div></div><div class="stc"><div class="stl">Deep work/day</div><div class="stv">&lt;1</div><div class="sts">most workers</div></div><div class="stc"><div class="stl">Interruptions/hr</div><div class="stv">11×</div><div class="sts">office avg</div></div><div class="stc"><div class="stl">Productivity gain</div><div class="stv">+40%</div><div class="sts">less switching</div></div></div>
+    <div class="two-col">
+      <div class="col-card"><div class="ch ph"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="cht">Common problems</span></div><div class="cb">
+        <div class="ir"><div class="in pn">1</div><div class="it"><span class="il">Notification pull</span><span class="id">Alerts destroy any chance of deep work</span></div></div>
+        <div class="ir"><div class="in pn">2</div><div class="it"><span class="il">Tab hoarding</span><span class="id">Dozens of tabs — cognitive paralysis</span></div></div>
+        <div class="ir"><div class="in pn">3</div><div class="it"><span class="il">Digital procrastination</span><span class="id">Devices as avoidance for real work</span></div></div>
+        <div class="ir"><div class="in pn">4</div><div class="it"><span class="il">Message flood</span><span class="id">Slack/email kills all flow states</span></div></div>
+        <div class="ir"><div class="in pn">5</div><div class="it"><span class="il">Short-form conditioning</span><span class="id">Reels rewire brain for instant gratification</span></div></div>
+      </div></div>
+      <div class="col-card"><div class="ch sh"><i class="ti ti-bulb" aria-hidden="true"></i><span class="cht">Evidence-based solutions</span></div><div class="cb">
+        <div class="ir"><div class="in sn">1</div><div class="it"><span class="il">Notification batching</span><span class="id">Check messages at 3 fixed windows only</span></div></div>
+        <div class="ir"><div class="in sn">2</div><div class="it"><span class="il">Tab lockdown</span><span class="id">Max 5 active tabs at a time</span></div></div>
+        <div class="ir"><div class="in sn">3</div><div class="it"><span class="il">Pomodoro protocol</span><span class="id">25 min focus + 5 min break cycles</span></div></div>
+        <div class="ir"><div class="in sn">4</div><div class="it"><span class="il">Async-first comms</span><span class="id">Batch replies, protect focus hours</span></div></div>
+        <div class="ir"><div class="in sn">5</div><div class="it"><span class="il">Long-form practice</span><span class="id">Daily reading rebuilds sustained attention</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- MENTAL TAB -->
+  <div id="tab-mental" class="hidden">
+    <div class="stats-row"><div class="stc"><div class="stl">Tech anxiety</div><div class="stv">62%</div><div class="sts">overwhelmed</div></div><div class="stc"><div class="stl">Nomophobia</div><div class="stv">53%</div><div class="sts">no-phone fear</div></div><div class="stc"><div class="stl">Depression risk</div><div class="stv">2.8×</div><div class="sts">4+ hrs, teens</div></div><div class="stc"><div class="stl">Detox mood gain</div><div class="stv">+34%</div><div class="sts">after 1 week</div></div></div>
+    <div class="two-col">
+      <div class="col-card"><div class="ch ph"><i class="ti ti-alert-circle" aria-hidden="true"></i><span class="cht">Common problems</span></div><div class="cb">
+        <div class="ir"><div class="in pn">1</div><div class="it"><span class="il">Technology anxiety</span><span class="id">Constant connectivity — persistent stress</span></div></div>
+        <div class="ir"><div class="in pn">2</div><div class="it"><span class="il">Nomophobia</span><span class="id">Panic when separated from device</span></div></div>
+        <div class="ir"><div class="in pn">3</div><div class="it"><span class="il">Digital loneliness</span><span class="id">Isolated despite hyper-connectivity</span></div></div>
+        <div class="ir"><div class="in pn">4</div><div class="it"><span class="il">Info burnout</span><span class="id">Cognitive exhaustion from content overload</span></div></div>
+        <div class="ir"><div class="in pn">5</div><div class="it"><span class="il">Absent presence</span><span class="id">Body present — mind lost in device</span></div></div>
+      </div></div>
+      <div class="col-card"><div class="ch sh"><i class="ti ti-bulb" aria-hidden="true"></i><span class="cht">Evidence-based solutions</span></div><div class="cb">
+        <div class="ir"><div class="in sn">1</div><div class="it"><span class="il">Mindfulness practice</span><span class="id">10 min daily meditation reduces tech stress</span></div></div>
+        <div class="ir"><div class="in sn">2</div><div class="it"><span class="il">Graduated separation</span><span class="id">Build 1-hr to half-day phone-free windows</span></div></div>
+        <div class="ir"><div class="in sn">3</div><div class="it"><span class="il">Offline social time</span><span class="id">Weekly in-person meetups</span></div></div>
+        <div class="ir"><div class="in sn">4</div><div class="it"><span class="il">Information fasting</span><span class="id">One full day per week — no news or social</span></div></div>
+        <div class="ir"><div class="in sn">5</div><div class="it"><span class="il">Device-free zones</span><span class="id">Bedroom and dining table — no phones</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- HABITS TAB -->
+  <div id="tab-habits" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-checklist" aria-hidden="true"></i> Today's habit checklist</div>
+      <div class="habit-grid" id="habitGrid">
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">No phone first 30 min after waking</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">20-20-20 eye rule done</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">Phone-free meal today</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">Screen off 90 min before bed</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">10 min offline activity</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">Notifications batched (3×)</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">Moved every 45 min</div></div>
+        <div class="habit-item"><div class="hck"><i class="ti ti-check" style="font-size:9px" aria-hidden="true"></i></div><div class="hlbl">No social media after 9 pm</div></div>
+      </div>
+      <div class="sbar-wrap">
+        <div class="sbar-lbl"><span>Today's progress</span><span id="habitCount">0 / 8</span></div>
+        <div class="sbar"><div class="sbar-fill" id="habitFill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POMO TAB -->
+  <div id="tab-pomo" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-clock" aria-hidden="true"></i> Pomodoro focus timer</div>
+      <div class="pomo-modes">
+        <button class="pm active" data-dur="1500" data-lbl="Focus session">Focus 25 min</button>
+        <button class="pm" data-dur="300" data-lbl="Short break">Break 5 min</button>
+        <button class="pm" data-dur="900" data-lbl="Long break">Long 15 min</button>
+      </div>
+      <div class="pomo-wrap">
+        <div class="pomo-ring">
+          <svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="#B5D4F4" stroke-width="7"/><circle id="pomoProg" cx="55" cy="55" r="48" fill="none" stroke="#378ADD" stroke-width="7" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="0"/></svg>
+          <div class="pomo-tl" id="pomoTime">25:00</div>
+        </div>
+        <div class="pomo-lbl" id="pomoLabel">Focus session — ready to start</div>
+        <div class="pomo-btns">
+          <button class="pb pri" id="pomoStart">Start</button>
+          <button class="pb" id="pomoReset">Reset</button>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="brt-row"><span class="brt-lbl">Sessions today</span><input type="range" min="0" max="12" value="0" step="1" id="pomoSess" style="flex:1"><span class="brt-val" id="pomoSessV">0</span></div>
+        <div class="brt-row"><span class="brt-lbl">Goal (min)</span><input type="range" min="60" max="480" value="120" step="30" id="pomoGoal" style="flex:1"><span class="brt-val" id="pomoGoalV">120</span></div>
+        <div class="sbar-wrap" style="margin-top:4px">
+          <div class="sbar-lbl"><span>Daily focus goal</span><span id="pomoGP">0%</span></div>
+          <div class="sbar"><div class="sbar-fill" id="pomoGF" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOOD TAB -->
+  <div id="tab-mood" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-mood-smile" aria-hidden="true"></i> How are you feeling right now?</div>
+      <div class="mood-grid">
+        <button class="mood-btn" data-mood="Thriving" data-icon="ti-mood-happy"><i class="ti ti-mood-happy mood-ic" aria-hidden="true"></i><span class="mood-lt">Thriving</span></button>
+        <button class="mood-btn" data-mood="Good" data-icon="ti-mood-smile"><i class="ti ti-mood-smile mood-ic" aria-hidden="true"></i><span class="mood-lt">Good</span></button>
+        <button class="mood-btn" data-mood="Neutral" data-icon="ti-mood-neutral"><i class="ti ti-mood-neutral mood-ic" aria-hidden="true"></i><span class="mood-lt">Neutral</span></button>
+        <button class="mood-btn" data-mood="Stressed" data-icon="ti-mood-confuzed"><i class="ti ti-mood-confuzed mood-ic" aria-hidden="true"></i><span class="mood-lt">Stressed</span></button>
+        <button class="mood-btn" data-mood="Drained" data-icon="ti-mood-sad"><i class="ti ti-mood-sad mood-ic" aria-hidden="true"></i><span class="mood-lt">Drained</span></button>
+      </div>
+      <div class="mood-note-row">
+        <input type="text" id="moodNote" placeholder="Optional note (e.g. scrolled too long)">
+        <button id="moodLogBtn">Log</button>
+      </div>
+      <div class="sct" style="margin-bottom:7px"><i class="ti ti-history" aria-hidden="true"></i> Today's mood log</div>
+      <div class="mood-log" id="moodLogList"></div>
+    </div>
+  </div>
+
+  <!-- SELF-CHECK TAB -->
+  <div id="tab-checker" class="hidden">
+    <div class="sc">
+      <div class="sct"><i class="ti ti-clipboard-check" aria-hidden="true"></i> Digital wellbeing self-assessment</div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c1"><label class="ck-lbl" for="c1">I check my phone within 5 minutes of waking up<br><span class="ck-sub">Reactive start sets a distracted tone all day</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c2"><label class="ck-lbl" for="c2">I feel anxious when I can't find my phone<br><span class="ck-sub">Sign of nomophobia — dependency on device access</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c3"><label class="ck-lbl" for="c3">I use my phone in bed before sleeping<br><span class="ck-sub">Disrupts melatonin and delays sleep onset</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c4"><label class="ck-lbl" for="c4">I find it hard to focus for more than 15 minutes<br><span class="ck-sub">Shortened attention span from fragmented habits</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c5"><label class="ck-lbl" for="c5">I compare my life to others on social media<br><span class="ck-sub">Curated feeds can damage self-esteem</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c6"><label class="ck-lbl" for="c6">I check notifications during meals or conversations<br><span class="ck-sub">Reduces quality of real-world relationships</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c7"><label class="ck-lbl" for="c7">I feel overwhelmed by the volume of digital content<br><span class="ck-sub">Information overload leads to cognitive burnout</span></label></div>
+      <div class="ck-row"><input type="checkbox" class="score-check" id="c8"><label class="ck-lbl" for="c8">I spend more screen time than intended most days<br><span class="ck-sub">Loss of intentional control over device use</span></label></div>
+      <div class="sbar-wrap" style="margin-top:8px">
+        <div class="sbar-lbl"><span>Your score</span><span id="scoreText">0 / 8 concerns</span></div>
+        <div class="sbar"><div class="sbar-fill" id="scoreFill" style="width:0%;background:#378ADD"></div></div>
+        <p id="scoreAdvice" style="font-size:11px;color:var(--color-text-secondary);margin-top:7px">Tick the boxes above to see your personalised result.</p>
+      </div>
+    </div>
+    <button class="send-btn" onclick="sendPrompt('Based on my digital wellbeing self-check, give me a personalised 7-day action plan')">Get my action plan ↗</button>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tb');
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+  });
+});
+
+function tick() {
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0');
+  const m = String(n.getMinutes()).padStart(2,'0');
+  const s = n.getSeconds();
+  document.getElementById('liveClock').textContent = h + ':' + m;
+  document.getElementById('liveDate').textContent = n.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('secNum').textContent = String(s).padStart(2,'0');
+  const circ = 2 * Math.PI * 18;
+  const offset = circ * (1 - s / 60);
+  document.getElementById('secRing').style.strokeDashoffset = offset;
+}
+tick(); setInterval(tick, 1000);
+
+let cdSeconds = {'Instagram': 900};
+let cdRunning = {'Instagram': true};
+function fmtCd(s) { return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+setInterval(() => {
+  Object.keys(cdSeconds).forEach(app => {
+    if (cdRunning[app] && cdSeconds[app] > 0) {
+      cdSeconds[app]--;
+      const el = document.getElementById('cd-' + app);
+      if (el) el.textContent = fmtCd(cdSeconds[app]);
+      if (cdSeconds[app] === 0) {
+        cdRunning[app] = false;
+        if (el) { el.textContent = 'Unlocked'; el.style.color = '#3B6D11'; }
+      }
+    }
+  });
+}, 1000);
+
+function toggleLock(cb, app) {
+  const row = cb.closest('.lock-app-row');
+  const chip = row.querySelector('.lock-chip');
+  const cdEl = document.getElementById('cd-' + app);
+  if (cb.checked) {
+    chip.textContent = 'Active'; chip.className = 'lock-chip chip-active';
+    if (cdEl) { cdEl.textContent = '—'; cdEl.style.color = ''; }
+  } else {
+    chip.textContent = 'Disabled'; chip.className = 'lock-chip';
+    chip.style.background = '#E6F1FB'; chip.style.color = '#185FA5';
+  }
+}
+
+let overrideTimer = null;
+function requestOverride(app) {
+  const delay = parseInt(document.getElementById('overrideDelay').value) || 60;
+  const panel = document.getElementById('overridePanel');
+  panel.classList.remove('hidden');
+  document.getElementById('overrideTitle').textContent = 'Override requested for ' + app + ' — please wait ' + delay + 's';
+  document.getElementById('overrideSub').textContent = 'This friction delay gives you time to reconsider before unlocking ' + app + '.';
+  let left = delay;
+  document.getElementById('overrideCountdown').textContent = left + 's';
+  document.getElementById('overrideFill').style.width = '100%';
+  if (overrideTimer) clearInterval(overrideTimer);
+  overrideTimer = setInterval(() => {
+    left--;
+    document.getElementById('overrideCountdown').textContent = left + 's';
+    document.getElementById('overrideFill').style.width = Math.round(left / delay * 100) + '%';
+    if (left <= 0) {
+      clearInterval(overrideTimer);
+      document.getElementById('overrideTitle').textContent = app + ' unlocked — use mindfully';
+      document.getElementById('overrideBanner').className = 'alert-banner alert-g';
+      document.getElementById('overrideBanner').querySelector('i').className = 'ti ti-circle-check';
+      document.getElementById('overrideSub').textContent = 'Override granted. Remember your wellbeing goals — try to keep it brief.';
+      const cdEl = document.getElementById('cd-' + app);
+      if (cdEl) { cdEl.textContent = 'Overridden'; cdEl.style.color = '#3B6D11'; }
+      setTimeout(() => panel.classList.add('hidden'), 4000);
+    }
+  }, 1000);
+}
+
+const simAlerts = [
+  {t:'r',ic:'ti-alert-triangle',tt:'TikTok — limit exceeded',sb:'62 min used · 50 min limit · App locked automatically'},
+  {t:'y',ic:'ti-clock-exclamation',tt:'Twitter / X — approaching limit',sb:'51 min used of 60 min limit · 9 minutes remaining'},
+  {t:'g',ic:'ti-circle-check',tt:'Snapchat — well within limit',sb:'8 min used of 50 min limit · Operating normally'},
+];
+let simIdx = 0;
+document.getElementById('simBtn').addEventListener('click', () => {
+  const a = simAlerts[simIdx % simAlerts.length]; simIdx++;
+  const d = document.createElement('div');
+  d.className = 'alert-banner alert-' + a.t;
+  d.innerHTML = '<i class="ti ' + a.ic + '" aria-hidden="true"></i><div><div class="ab-title">' + a.tt + '</div><div class="ab-sub">' + a.sb + '</div></div>';
+  document.getElementById('alertBanners').prepend(d);
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('alertBanners').innerHTML = '<div class="alert-banner alert-g"><i class="ti ti-circle-check" aria-hidden="true"></i><div><div class="ab-title">All clear — no active alerts</div><div class="ab-sub">All apps within their daily limits. Keep it up!</div></div></div>';
+});
+
+document.querySelectorAll('.alarm-row .app-toggle input').forEach(tog => {
+  tog.addEventListener('change', () => {
+    const st = tog.closest('.alarm-row').querySelector('.ast');
+    if (!st) return;
+    if (tog.checked) { st.textContent = 'Active'; st.className = 'ast ast-on'; }
+    else { st.textContent = 'Off'; st.className = 'ast ast-off'; }
+  });
+});
+
+document.querySelectorAll('.habit-item').forEach(h => {
+  h.addEventListener('click', () => {
+    h.classList.toggle('done');
+    const n = document.querySelectorAll('.habit-item.done').length;
+    document.getElementById('habitCount').textContent = n + ' / 8';
+    document.getElementById('habitFill').style.width = Math.round(n/8*100) + '%';
+  });
+});
+
+let pomoInterval = null, pomoDur = 1500, pomoLeft = 1500, pomoRunning = false;
+const circ2 = 2 * Math.PI * 48;
+function pomoDisplay(s) {
+  document.getElementById('pomoTime').textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+  document.getElementById('pomoProg').style.strokeDashoffset = circ2 * (1 - s/pomoDur);
+}
+document.getElementById('pomoStart').addEventListener('click', () => {
+  if (!pomoRunning) {
+    pomoRunning = true; document.getElementById('pomoStart').textContent = 'Pause'; document.getElementById('pomoLabel').textContent = 'Session in progress — stay focused';
+    pomoInterval = setInterval(() => { if (pomoLeft <= 0) { clearInterval(pomoInterval); pomoRunning = false; document.getElementById('pomoStart').textContent = 'Start'; document.getElementById('pomoLabel').textContent = 'Session complete — take a break!'; return; } pomoLeft--; pomoDisplay(pomoLeft); }, 1000);
+  } else { clearInterval(pomoInterval); pomoRunning = false; document.getElementById('pomoStart').textContent = 'Resume'; document.getElementById('pomoLabel').textContent = 'Paused — resume when ready'; }
+});
+document.getElementById('pomoReset').addEventListener('click', () => { clearInterval(pomoInterval); pomoRunning = false; pomoLeft = pomoDur; pomoDisplay(pomoLeft); document.getElementById('pomoStart').textContent = 'Start'; document.getElementById('pomoLabel').textContent = document.querySelector('.pm.active').dataset.lbl + ' — ready to start'; });
+document.querySelectorAll('.pm').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.pm').forEach(b => b.classList.remove('active')); btn.classList.add('active'); clearInterval(pomoInterval); pomoRunning = false; pomoDur = parseInt(btn.dataset.dur); pomoLeft = pomoDur; pomoDisplay(pomoLeft); document.getElementById('pomoStart').textContent = 'Start'; document.getElementById('pomoLabel').textContent = btn.dataset.lbl + ' — ready to start'; }); });
+document.getElementById('pomoSess').addEventListener('input', function(){ document.getElementById('pomoSessV').textContent = this.value; updateGoal(); });
+document.getElementById('pomoGoal').addEventListener('input', function(){ document.getElementById('pomoGoalV').textContent = this.value; updateGoal(); });
+function updateGoal(){ const done=parseInt(document.getElementById('pomoSess').value)*25,goal=parseInt(document.getElementById('pomoGoal').value),pct=Math.min(100,Math.round(done/goal*100)); document.getElementById('pomoGP').textContent=pct+'%'; document.getElementById('pomoGF').style.width=pct+'%'; }
+pomoDisplay(pomoLeft);
+
+let selMood = null;
+document.querySelectorAll('.mood-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); selMood={mood:btn.dataset.mood,icon:btn.dataset.icon}; }); });
+document.getElementById('moodLogBtn').addEventListener('click', () => {
+  if (!selMood) return;
+  const note = document.getElementById('moodNote').value.trim();
+  const now = new Date(), time = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const e = document.createElement('div'); e.className='mood-entry';
+  e.innerHTML='<i class="ti '+selMood.icon+' mood-ei" aria-hidden="true"></i><span style="font-size:11px;color:var(--color-text-primary)">'+selMood.mood+(note?' — '+note:'')+'</span><span class="mood-et">'+time+'</span>';
+  document.getElementById('moodLogList').prepend(e);
+  document.getElementById('moodNote').value=''; document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel')); selMood=null;
+});
+
+const scoreColors=['#378ADD','#378ADD','#BA7517','#D85A30','#A32D2D'];
+const scoreMsgs=[{max:1,t:'Great digital health. Habits are intentional and balanced.'},{max:2,t:'Good shape. One or two habits worth reviewing this week.'},{max:4,t:'Mild concerns. A few habits may be affecting your wellbeing.'},{max:6,t:'Moderate impact. Consider a structured digital detox plan.'},{max:8,t:'High impact. Several areas need attention — a full reset is recommended.'}];
+document.querySelectorAll('.score-check').forEach(c => {
+  c.addEventListener('change', () => {
+    const n=[...document.querySelectorAll('.score-check')].filter(x=>x.checked).length;
+    document.getElementById('scoreText').textContent=n+' / 8 concerns';
+    const m=scoreMsgs.find(m=>n<=m.max)||scoreMsgs[4],col=scoreColors[Math.min(n,4)];
+    document.getElementById('scoreFill').style.width=Math.round(n/8*100)+'%';
+    document.getElementById('scoreFill').style.background=col;
+    const adv=document.getElementById('scoreAdvice'); adv.textContent=m.t; adv.style.color=col;
+  });
+});
+</script>
