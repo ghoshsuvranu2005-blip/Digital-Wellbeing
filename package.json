@@ -1,0 +1,35 @@
+{
+  "name": "digital-wellbeing-hub",
+  "version": "2.0.0",
+  "description": "A blue-themed digital wellbeing dashboard with app timers, auto-lock, alarms, habit tracking, Pomodoro timer and mood logging.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . --listen 3000",
+    "dev":   "npx live-server --port=3000 --open=index.html",
+    "lint":  "npx eslint js/**/*.js",
+    "format":"npx prettier --write \"**/*.{html,css,js,json,md}\""
+  },
+  "keywords": [
+    "digital-wellbeing",
+    "screen-time",
+    "app-timer",
+    "auto-lock",
+    "pomodoro",
+    "habit-tracker",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "serve":       "^14.2.0",
+    "eslint":      "^8.0.0",
+    "prettier":    "^3.0.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ]
+}
